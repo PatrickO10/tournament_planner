@@ -3,7 +3,7 @@
 -- Remove tournament database.
 DROP DATABASE tournament;
 
--- Creating database and establishing the schema
+-- Creating the tournament database and establishing the schema
 CREATE DATABASE tournament;
 
 -- Connect to newly created database.
@@ -66,8 +66,8 @@ INSERT INTO Players (name) VALUES('CARL CALM');
 INSERT INTO Players (name) VALUES('DAN DOM');
 INSERT INTO Players (name) VALUES('EVAN EVIL');
 INSERT INTO Players (name) VALUES('FLAMING FIRE');
-INSERT INTO Players (name) VALUES('Glaring Gull');
-INSERT INTO Players (name) VALUES('Hillary Hilly');
+INSERT INTO Players (name) VALUES('GLARING GULL');
+INSERT INTO Players (name) VALUES('HILLARY HILLY');
 
 -- Round 1
 INSERT INTO Matches (winner_id, loser_id) VALUES(1, 2);

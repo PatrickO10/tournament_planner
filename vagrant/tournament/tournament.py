@@ -5,6 +5,35 @@
 
 import psycopg2
 
+
+def manipulateDB(statement, *args, **kwargs):
+    """Manipulates the tournament database.
+
+    Connects and then creates a Cursor object and calls its
+    execute() method to perform SQL commands.
+
+    Args:
+      statement: a prepared statement to be executed (either a query or insert).
+      (optional)fetch: the method fetches one or all remaining rows of a
+         query result set and returns a list of tuples.
+      (optional)tplValues: provides a tuple of values as the second argument
+         to the cursors execute() method to prevent SQL injection.
+    """
+    fetch = kwargs.get('fetch')
+    tplValues = kwargs.get('values')
+    results = ''
+    conn = connect()
+    c = conn.cursor()
+    c.execute(statement, tplValues)
+    if fetch == "fetchone":
+        results = c.fetchone()
+    if fetch == "fetchall":
+        results = c.fetchall()
+    conn.commit()
+    conn.close()
+    return results
+
+
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
     return psycopg2.connect("dbname=tournament")
@@ -12,47 +41,35 @@ def connect():
 
 def deleteMatches():
     """Remove all the match records from the database."""
-    query = "TRUNCATE TABLE matches CASCADE;"
-    conn = connect()
-    c = conn.cursor()
-    c.execute(query)
-    conn.commit()
-    conn.close()
+    query = "TRUNCATE TABLE Matches CASCADE;"
+    manipulateDB(query)
+
 
 def deletePlayers():
     """Remove all the player records from the database."""
-    query = "TRUNCATE TABLE players CASCADE;"
-    conn = connect()
-    c = conn.cursor()
-    c.execute(query)
-    conn.commit()
-    conn.close()
+    query = "TRUNCATE TABLE Players CASCADE;"
+    manipulateDB(query)
+
 
 def countPlayers():
     """Returns the number of players currently registered."""
-    conn = connect()
-    c = conn.cursor()
-    c.execute("SELECT COUNT(Players.id) FROM Players;")
-    count = c.fetchone()[0]
-    conn.close()
-    return count
+    query = "SELECT COUNT(Players.id) FROM Players;"
+    count = manipulateDB(query, fetch="fetchone")
+    return count[0]
 
 
 def registerPlayer(name):
     """Adds a player to the tournament database.
 
     The database assigns a unique serial id number for the player.  (This
-    should be handled by your SQL database schema, not in your Python code.)
+    is handled by my SQL database schema, not in my Python code.)
 
     Args:
-      name: the player's full name (need not be unique).
+      name: the player's full name (not unique).
     """
     insert = "INSERT INTO Players (name) VALUES(%s);"
-    conn = connect()
-    c = conn.cursor()
-    c.execute(insert, (name,))
-    conn.commit()
-    conn.close()
+    manipulateDB(insert, values=(name,))
+
 
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
@@ -68,12 +85,7 @@ def playerStandings():
         matches: the number of matches the player has played
     """
     query = "SELECT * FROM v_standings;"
-    conn = connect()
-    c = conn.cursor()
-    c.execute(query)
-    results = c.fetchall()
-    conn.close()
-    return results
+    return manipulateDB(query, fetch="fetchall")
 
 
 def reportMatch(winner, loser):
@@ -84,11 +96,7 @@ def reportMatch(winner, loser):
       loser:  the id number of the player who lost
     """
     insert = "INSERT INTO Matches (winner_id, loser_id) VALUES(%s, %s);"
-    conn = connect()
-    c = conn.cursor()
-    c.execute(insert, (winner, loser))
-    conn.commit()
-    conn.close()
+    manipulateDB(insert, values=(winner, loser,))
 
 
 def swissPairings():
@@ -107,14 +115,12 @@ def swissPairings():
         name2: the second player's name
     """
     query = "SELECT v_standings.id, v_standings.name FROM v_standings;"
-    conn = connect()
-    c = conn.cursor()
-    c.execute(query)
-    results = c.fetchall()
+    results = manipulateDB(query, fetch="fetchall")
     pairings = []
     # Append pairs of players going down the list of v_standings.
-    # Player at the top will be paired with player directly below in standings.
+    # Player at the top will be paired with player directly below in standings,
+    # until there are no more pairs.
     for i in range(0, len(results) - 1, 2):
         pairings.append(results[i] + results[i + 1])
-    conn.close()
+
     return pairings
