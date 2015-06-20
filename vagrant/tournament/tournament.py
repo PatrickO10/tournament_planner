@@ -6,7 +6,7 @@
 import psycopg2
 
 
-def manipulateDB(statement, *args, **kwargs):
+def manipulateDB(statement, **kwargs):
     """Manipulates the tournament database.
 
     Connects and then creates a Cursor object and calls its
