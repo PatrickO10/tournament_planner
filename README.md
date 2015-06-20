@@ -15,17 +15,28 @@ Functionalities:
 2. Clone the [tournament_planner](https://github.com/PatrickO10/tournament_planner.git) repository
 3. Launch the Vagrant VM
 4. In command line cd into tournament_planner/vagrant
+
 	`cd tournament_planner/vagrant`
+
+
 5. Launch Vagrant VM by typing vagrant up and then followed by vagrant ssh.
+
 6. Now, cd to the tournament directory:
+
 	`cd /vagrant/tournament`
+
 7. Next, import the file that will create the database schema.
-	You can either run the psql command line by typing $ psql -f tournament.sql
+	You can either type this in the command line:
+
 		`psql -f tournament.sql`
+
  	or type psql and hit enter and then type \i tournament.sql
+
 		`psql`
-		`\i tournament.sql
- 	To leave type psql type \q
+
+		`\i tournament.sql`
+
+ 	To leave type psql type
  		`\q`
 
 8. Now you can test by typing in the command line:
